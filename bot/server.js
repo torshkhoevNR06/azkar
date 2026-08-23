@@ -27,7 +27,16 @@ import('adhan').then(m => { adhan = m.default || m; console.log('[adhan] заг�
 
 const PORT = process.env.PORT || 3010;
 const TOKEN = process.env.BOT_TOKEN || '';
-const APP_URL = process.env.APP_URL || 'https://azkar.nurtech.dev/app';
+function canonicalAppUrl(raw) {
+  const url = new URL(String(raw || '').trim());
+  url.search = '';
+  url.hash = '';
+  url.pathname = url.pathname.replace(/\/+$/, '') + '/';
+  return url.href;
+}
+// Telegram reuses an opened Mini App by its exact launch URL. Keep every bot entry point
+// on the final, non-redirecting URL (/app/), even if APP_URL was configured as /app.
+const APP_URL = canonicalAppUrl(process.env.APP_URL || 'https://azkar.nurtech.dev/app/');
 const MORNING_CRON = process.env.MORNING_CRON || '30 6 * * *';
 const EVENING_CRON = process.env.EVENING_CRON || '0 18 * * *';
 const SLEEP_CRON = process.env.SLEEP_CRON || '30 22 * * *';
