@@ -422,7 +422,7 @@
     background:linear-gradient(180deg, color-mix(in srgb, var(--surface-2) 92%, white), var(--surface-2));
     border:1px solid color-mix(in srgb, var(--line) 82%, var(--ink-faint)); border-radius:18px; color:var(--ink);
     box-shadow:0 6px 18px rgba(15,23,42,.07), inset 0 1px 0 rgba(255,255,255,.35);
-    -webkit-tap-highlight-color:transparent; transition:transform .18s cubic-bezier(.2,.8,.2,1), border-color .18s, background .18s, box-shadow .18s; }
+    -webkit-tap-highlight-color:transparent; transition:transform .18s cubic-bezier(.2,.8,.2,1), border-color .18s, background .18s, box-shadow .18s; touch-action:manipulation; }
   .tasbih:active { transform:scale(.97); }
   .tasbih::before { content:""; position:absolute; inset:auto 12px 10px 12px; height:5px; border-radius:999px; background:color-mix(in srgb, var(--ink-faint) 14%, transparent); }
   .tasbih .fill { position:absolute; left:12px; bottom:10px; height:5px; width:var(--progress,0%); max-width:calc(100% - 24px); border-radius:999px;
