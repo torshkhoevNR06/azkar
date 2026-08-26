@@ -898,6 +898,7 @@
   .qp-banner { font-family:'QBSML'; font-size:.95em; line-height:1; color:var(--qp-ink,#17150f); }
   .qp-bism { font-family:'KFGQPC', var(--ar); font-size:.6em; line-height:1; color:var(--qp-ink,#17150f); }
   .qp-foot { display:grid; place-items:center; direction:ltr; }
+  .qp-pane:not(.qp-current) .qp-foot { visibility:hidden; }
   .qp-num { font-family:'KFGQPC', var(--ar); font-size:.52em; color:var(--qp-num-ink,#5b5340); line-height:1; }
   .qp-paper.is-blank .qp-body, .qp-paper.is-blank .qp-foot, .qp-paper.is-blank .qp-head { visibility:hidden; }
   .qp-loading { text-align:center; color:var(--ink-faint); font-size:14px; padding:40px 16px; }
@@ -5879,6 +5880,7 @@ https://azkar.nurtech.dev/app`);
   // заполнить три панели вокруг страницы n (данные соседей — из кэша либо догружаются)
   function qPaintDeck(n){
     const panes=qPanes(); if(panes.length!==3) return;
+    panes.forEach(function(pane,i){ pane.classList.toggle('qp-current', i===1); });
     // класс таджвида обновляем на каждой отрисовке: дека строится один раз, а режим можно переключить
     const wrap=document.getElementById('qrAyahs');
     if(wrap) wrap.classList.toggle('q-tajweed', !!QPREFS.tj);
