@@ -906,7 +906,10 @@
   .qp-bism { font-family:'KFGQPC', var(--ar); font-size:.6em; line-height:1; color:var(--qp-ink,#17150f); }
   .qp-foot { display:grid; place-items:center; direction:ltr; }
   .qp-pane:not(.qp-current) .qp-foot { visibility:hidden; }
-  .qp-num { font-family:'KFGQPC', var(--ar); font-size:.52em; color:var(--qp-num-ink,#5b5340); line-height:1; }
+  /* Номер страницы — обычным шрифтом: в мусхафном KFGQPC цифры нарисованы как орнаментальные
+     медальоны (маркеры конца аята), и номер выглядел как два кружка вместо числа. */
+  .qp-num { font-family:var(--sans); font-size:.5em; font-weight:600; font-variant-numeric:tabular-nums;
+    color:var(--qp-num-ink,#5b5340); line-height:1; letter-spacing:.02em; }
   .qp-paper.is-blank .qp-body, .qp-paper.is-blank .qp-foot, .qp-paper.is-blank .qp-head { visibility:hidden; }
   .qp-loading { text-align:center; color:var(--ink-faint); font-size:14px; padding:40px 16px; }
   @media (prefers-reduced-motion: reduce){ .qp-deck.qp-anim { transition:none; } }
