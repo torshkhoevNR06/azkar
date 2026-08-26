@@ -520,12 +520,12 @@
   .modal { position:fixed; inset:0; z-index:40; display:none; }
   .modal.open { display:block; }
   .modal .scrim { position:absolute; inset:0; background:rgba(0,0,0,.5); backdrop-filter:blur(2px); }
-  .modal .sheet { position:absolute; left:0; right:0; bottom:0; max-width:440px; margin-inline:auto; max-height:88%; overflow-y:auto;
+  .modal .sheet { position:absolute; left:0; right:0; bottom:0; width:min(100%, 440px); max-width:100%; min-width:0; box-sizing:border-box; margin-inline:auto; max-height:88%; overflow-y:auto; overflow-x:hidden;
     overscroll-behavior:contain; overscroll-behavior-y:none; -webkit-overflow-scrolling:touch;
     background:var(--surface); border-radius:20px 20px 0 0; border-top:1px solid var(--line);
     box-shadow:0 -8px 40px rgba(0,0,0,.25); padding:8px 20px calc(24px + var(--tg-safe-bottom));
     animation:sheetUp .28s cubic-bezier(.2,.8,.2,1); }
-  #qSheet .sheet { height:min(88dvh, calc(100dvh - 24px)); max-height:min(88dvh, calc(100dvh - 24px)); overflow:hidden; display:flex; flex-direction:column; }
+  #qSheet .sheet { width:min(calc(100% - 16px), 468px); height:min(88dvh, calc(100dvh - 24px)); max-height:min(88dvh, calc(100dvh - 24px)); overflow:hidden; display:flex; flex-direction:column; }
   #qSheet .sheet { --q-scroll-top: 0px; }
   @keyframes sheetUp { from{transform:translateY(100%);} to{transform:none;} }
   .modal .grip {
@@ -538,30 +538,36 @@
   .modal .m-head { touch-action:none; }
   .modal .m-head { display:flex; align-items:center; gap:10px; margin-bottom:6px; flex:0 0 auto; }
   #qSheetBody {
-    min-height:0; flex:1 1 auto; overflow-y:auto; overscroll-behavior:contain;
-    padding-right:24px; margin-right:0; scrollbar-width:none;
+    min-width:0; max-width:100%; min-height:0; flex:1 1 auto; overflow-y:auto; overflow-x:hidden; overscroll-behavior:contain;
+    padding-right:14px; margin-right:10px; scrollbar-width:none; overflow-wrap:break-word;
   }
   #qSheetBody::-webkit-scrollbar { display:none; width:0; height:0; }
   #qSheetScroll {
-    position:absolute; top:78px; right:10px; bottom:18px; width:14px;
-    pointer-events:none; opacity:0; transition:opacity .16s;
+    position:absolute; top:78px; right:8px; bottom:18px; width:12px; border:1px solid color-mix(in srgb, var(--line) 78%, transparent); border-radius:999px;
+    background:color-mix(in srgb, var(--bg) 28%, transparent); box-shadow:inset 0 0 0 1px color-mix(in srgb, var(--surface-2) 60%, transparent);
+    pointer-events:auto; opacity:0; transition:opacity .16s; cursor:pointer; touch-action:none;
   }
   #qSheet.open #qSheetScroll.on { opacity:1; }
   #qSheetScrollThumb {
-    position:absolute; top:var(--q-scroll-top); right:4px; width:6px; height:36px; border-radius:999px;
-    background:color-mix(in srgb, var(--ink-faint) 78%, transparent);
+    position:absolute; top:var(--q-scroll-top); right:2px; width:6px; height:36px; border-radius:999px;
+    background:color-mix(in srgb, var(--ink-faint) 78%, transparent); cursor:grab;
+  }
+  #qSheetScrollThumb:active { cursor:grabbing; }
+  @media (hover:none), (pointer:coarse) {
+    #qSheetBody { padding-right:24px; margin-right:0; }
+    #qSheetScroll { pointer-events:none; }
   }
   .modal .m-badge { width:30px; height:30px; border-radius:50%; background:var(--accent-soft); color:var(--accent-deep);
     display:grid; place-items:center; font-weight:800; font-size:14px; flex-shrink:0; }
   .modal .m-title { font-size:18px; font-weight:700; flex:1; }
   .modal .m-close { width:32px; height:32px; border-radius:50%; border:1px solid var(--line); background:var(--surface-2);
     color:var(--ink-soft); display:grid; place-items:center; cursor:pointer; }
-  .modal .m-ar { font-family:var(--ar-font),var(--ar); direction:rtl; text-align:right; font-size:24px; line-height:2.1; margin:14px 0 6px; }
+  .modal .m-ar { font-family:var(--ar-font),var(--ar); direction:rtl; text-align:right; font-size:24px; line-height:2.1; margin:14px 0 6px; overflow-wrap:anywhere; word-break:break-word; }
   .modal .m-sec { margin-top:16px; }
   .modal .m-lbl { font-size:12px; letter-spacing:1px; text-transform:uppercase; color:var(--accent-deep); font-weight:700; margin-bottom:6px; }
-  .modal .m-txt { font-size:16px; line-height:1.65; color:var(--ink); }
+  .modal .m-txt { font-size:16px; line-height:1.65; color:var(--ink); min-width:0; max-width:100%; overflow-wrap:break-word; }
   .modal .m-txt.soft { color:var(--ink-soft); font-family:var(--serif); }
-  .modal .m-txt.sharh { white-space:pre-line; font-size:15.5px; line-height:1.72; color:var(--ink-soft); }
+  .modal .m-txt.sharh { white-space:pre-line; font-size:15.5px; line-height:1.72; color:var(--ink-soft); overflow-wrap:anywhere; word-break:break-word; }
   .modal .m-sharh-tabs { display:flex; gap:4px; padding:4px; border-radius:12px; background:var(--surface-2); margin-bottom:10px; }
   .modal .m-sharh-tabs button { flex:1; border:0; border-radius:9px; padding:8px 6px; background:none; color:var(--ink-soft);
     font:inherit; font-size:13px; font-weight:700; cursor:pointer; }
@@ -1258,14 +1264,17 @@
   .q-tafsir-btn:active { transform:scale(.94); }
   .q-tafsir-btn svg { flex:0 0 auto; }
   .q-taf-sub { font-size:12px; letter-spacing:.4px; text-transform:uppercase; color:var(--accent-deep); font-weight:700; margin-bottom:10px; }
-  .q-taf-text { font-size:15.5px; line-height:1.75; color:var(--ink); white-space:pre-line; }
+  .q-taf-text { min-width:0; max-width:100%; font-size:15.5px; line-height:1.75; color:var(--ink); white-space:pre-line; overflow-wrap:anywhere; word-break:break-word; }
+  .q-taf-ar { direction:rtl; unicode-bidi:isolate; overflow-wrap:anywhere; word-break:break-word; }
+  .q-taf-ar.long { display:block; max-width:100%; margin:.12em 0; text-align:right; direction:rtl; unicode-bidi:isolate; }
+  .q-taf-ar.long > bdi { display:inline; direction:rtl; unicode-bidi:isolate-override; overflow-wrap:anywhere; word-break:break-word; line-break:anywhere; }
   .q-taf-loading { padding:18px 2px; color:var(--ink-faint); font-size:14px; text-align:center; }
-  .q-taf-sources { display:grid; grid-template-columns:1fr 1fr; gap:7px; margin:0 0 14px; padding:3px; border-radius:13px;
+  .q-taf-sources { min-width:0; max-width:100%; display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:7px; margin:0 0 14px; padding:3px; border-radius:13px;
     background:var(--surface-2); border:1px solid var(--line); }
   .q-taf-source { min-width:0; border:0; border-radius:10px; padding:8px 7px; background:transparent; color:var(--ink-soft);
     font:inherit; font-size:12.5px; font-weight:700; cursor:pointer; -webkit-tap-highlight-color:transparent; }
   .q-taf-source.on { background:var(--surface); color:var(--ink); box-shadow:0 1px 4px rgba(0,0,0,.08); }
-  .q-taf-ayah { font-size:14.5px; line-height:1.6; color:var(--ink); padding:11px 14px; border-radius:12px; background:var(--surface-2);
+  .q-taf-ayah { min-width:0; max-width:100%; box-sizing:border-box; font-size:14.5px; line-height:1.6; color:var(--ink); padding:11px 14px; border-radius:12px; background:var(--surface-2); overflow-wrap:anywhere; word-break:break-word;
     margin-bottom:14px; border-left:3px solid color-mix(in srgb, var(--accent) 45%, var(--line)); }
   .q-taf-full { display:inline-flex; align-items:center; gap:7px; margin-top:16px; padding:9px 14px; border-radius:12px;
     border:1px solid var(--line); background:var(--surface); color:var(--ink-soft); font:inherit; font-size:13px; font-weight:600;
@@ -1796,6 +1805,7 @@
         <button class="m-close" id="qSheetClose" aria-label="Закрыть"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
       </div>
       <div id="qSheetBody"></div>
+      <div id="qSheetScroll" aria-hidden="true"><div id="qSheetScrollThumb"></div></div>
     </div>
   </div>
 
@@ -2927,6 +2937,21 @@
   function cleanUrl(url){ return String(url || '').trim(); }
   function escHtml(s){
     return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+  function qTafTextHtml(text){
+    let raw = String(text == null ? '' : text);
+    const kept = [];
+    raw = raw.replace(/﴾[\s\S]*?﴿/g, function(part){
+      const key = '\uE000'+kept.length+'\uE001';
+      kept.push(escHtml(part));
+      return key;
+    });
+    const longArabic = /[،؛؟]?[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFE70-\uFEFF\u064B-\u065F\u0670\u06D6-\u06ED](?:[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFE70-\uFEFF\u064B-\u065F\u0670\u06D6-\u06ED،؛؟.:()0-9٠-٩-]|\s(?=[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFE70-\uFEFF])){21,}/g;
+    return escHtml(raw).replace(longArabic, function(part){
+      return '<span class="q-taf-ar long" dir="rtl"><bdi>'+part+'</bdi></span>';
+    }).replace(/\uE000(\d+)\uE001/g, function(_m, i){
+      return kept[parseInt(i,10)] || '';
+    });
   }
   function dedupeRefs(refs){
     const seen = new Set();
@@ -6462,7 +6487,62 @@ https://azkar.nurtech.dev/app`);
 
   // ---- шторка: легенда / статистика ----
   let qSheetOpen=false;
-  function openQSheet(){ if(qSheetOpen) return; document.getElementById('qSheet').classList.add('open'); qSheetOpen=true; lockInfoScroll(); tgBack(true, back); }
+  function qSheetScrollSync(){
+    const body=document.getElementById('qSheetBody'), track=document.getElementById('qSheetScroll'), thumb=document.getElementById('qSheetScrollThumb');
+    if(!body || !track || !thumb) return;
+    const max=body.scrollHeight-body.clientHeight;
+    if(max<=2){ track.classList.remove('on'); thumb.style.height='36px'; track.style.setProperty('--q-scroll-top','0px'); return; }
+    track.classList.add('on');
+    const trackH=track.clientHeight;
+    const thumbH=Math.max(34, Math.round(trackH * body.clientHeight / body.scrollHeight));
+    const top=Math.round((trackH-thumbH) * (body.scrollTop / max));
+    thumb.style.height=thumbH+'px';
+    track.style.setProperty('--q-scroll-top', Math.max(0, Math.min(trackH-thumbH, top))+'px');
+  }
+  function qSheetScrollBind(){
+    const body=document.getElementById('qSheetBody'), track=document.getElementById('qSheetScroll'), thumb=document.getElementById('qSheetScrollThumb');
+    if(!body) return;
+    if(!body._qScrollBound){
+      body._qScrollBound=true;
+      body.addEventListener('scroll', qSheetScrollSync, { passive:true });
+      window.addEventListener('resize', qSheetScrollSync, { passive:true });
+    }
+    if(!track || !thumb || track._qDragBound) return;
+    track._qDragBound=true;
+    let drag=false, startY=0, startTop=0;
+    const scrollToPointer=function(e){
+      const max=body.scrollHeight-body.clientHeight;
+      if(max<=2) return;
+      const tr=track.getBoundingClientRect();
+      const thumbH=thumb.offsetHeight || 36;
+      const y=Math.max(0, Math.min(tr.height-thumbH, e.clientY-tr.top-thumbH/2));
+      body.scrollTop = max * (y / Math.max(1, tr.height-thumbH));
+    };
+    track.addEventListener('pointerdown', function(e){
+      e.preventDefault();
+      const max=body.scrollHeight-body.clientHeight;
+      if(max<=2) return;
+      if(e.target===thumb){
+        drag=true; startY=e.clientY; startTop=body.scrollTop;
+        try{ track.setPointerCapture(e.pointerId); }catch(_e){}
+      } else {
+        scrollToPointer(e);
+      }
+      qSheetScrollSync();
+    });
+    track.addEventListener('pointermove', function(e){
+      if(!drag) return;
+      e.preventDefault();
+      const max=body.scrollHeight-body.clientHeight;
+      const travel=Math.max(1, track.clientHeight-(thumb.offsetHeight||36));
+      body.scrollTop = startTop + (e.clientY-startY) * (max / travel);
+      qSheetScrollSync();
+    });
+    const end=function(e){ if(!drag) return; drag=false; try{ track.releasePointerCapture(e.pointerId); }catch(_e){} };
+    track.addEventListener('pointerup', end);
+    track.addEventListener('pointercancel', end);
+  }
+  function openQSheet(){ if(qSheetOpen) return; document.getElementById('qSheet').classList.add('open'); qSheetOpen=true; qSheetScrollBind(); requestAnimationFrame(qSheetScrollSync); lockInfoScroll(); tgBack(true, back); }
   function closeQSheet(){ if(!qSheetOpen) return; document.getElementById('qSheet').classList.remove('open'); qSheetOpen=false; QTAF.settings=false; unlockInfoScroll(); const a=activeScreen(); tgBack((a&&a.id==='quranReader')||navStack.length>1, back); }
   function openTajweedLegend(){
     QTAF.settings=false;
@@ -6611,7 +6691,7 @@ https://azkar.nurtech.dev/app`);
       html += '<div class="q-taf-sub">'+escHtml(nm)+' · аят '+a+'</div>';
       if(cur.ayahTr) html += '<div class="q-taf-ayah">'+escHtml(cur.ayahTr)+'</div>';
       html += playHtml;
-      html += '<div class="q-taf-text">'+escHtml(r.seg[String(a)])+'</div>';
+      html += '<div class="q-taf-text">'+qTafTextHtml(r.seg[String(a)])+'</div>';
       if(r.t>r.f) html += '<button type="button" class="q-taf-full" onclick="qTafToggleFull()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h10"/></svg>Толкование всего пассажа (аяты '+r.f+'–'+r.t+')</button>';
     } else {
       const rangeLabel = r.f===r.t ? ('аят '+r.f) : ('аяты '+r.f+'–'+r.t);
@@ -6619,10 +6699,11 @@ https://azkar.nurtech.dev/app`);
       if(cur.ayahTr) html += '<div class="q-taf-ayah">'+escHtml(cur.ayahTr)+'</div>';   // перевод аята (Кулиев) над толкованием
       html += playHtml;
       if(r.f!==r.t && !r.seg) html += '<div class="q-taf-group-note">'+escHtml(src.groupNote)+'</div>';
-      html += '<div class="q-taf-text">'+escHtml(String(r.x))+'</div>';
+      html += '<div class="q-taf-text">'+qTafTextHtml(String(r.x))+'</div>';
       if(r.seg && r.seg[String(a)]) html += '<button type="button" class="q-taf-full" onclick="qTafToggleFull()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>Показать только аят '+a+'</button>';
     }
     document.getElementById('qSheetBody').innerHTML = html + src.attr;
+    requestAnimationFrame(qSheetScrollSync);
   }
 
   (function(){
