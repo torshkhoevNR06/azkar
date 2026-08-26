@@ -2018,10 +2018,21 @@
     const el = t.closest('button, a[href], [role="button"], [onclick], .session, .qm-cell, .seg button, .rs-fonts button, .q-ayah .q-ar, .qcf-ayah, .q-w, .ft-chip, label.switch');
     if(el && !el.disabled && el.getAttribute('aria-disabled')!=='true') tgHaptic('light');
   }, { passive:true, capture:true });
+  let _tgBackHandler = null;
+  function tgCloseApp(){
+    if(!TG || typeof TG.close !== 'function') return;
+    try {
+      if(typeof qClockStop === 'function') qClockStop();
+      flushPush();
+      TG.close();
+    } catch(e){}
+  }
   function tgBack(show, handler){
     if(!TG || !TG.BackButton) return;
     try {
-      if(show){ TG.BackButton.show(); TG.BackButton.onClick(handler); }
+      if(_tgBackHandler && TG.BackButton.offClick) TG.BackButton.offClick(_tgBackHandler);
+      _tgBackHandler = show ? handler : (typeof TG.close === 'function' ? tgCloseApp : null);
+      if(_tgBackHandler){ TG.BackButton.onClick(_tgBackHandler); TG.BackButton.show(); }
       else { TG.BackButton.hide(); }
     } catch(e){}
   }
