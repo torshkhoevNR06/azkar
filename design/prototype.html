@@ -349,10 +349,8 @@
     background:linear-gradient(180deg, color-mix(in srgb, var(--surface-2) 92%, white), var(--surface-2));
     border:1px solid color-mix(in srgb, var(--line) 82%, var(--ink-faint)); border-radius:18px; color:var(--ink);
     box-shadow:0 6px 18px rgba(15,23,42,.07), inset 0 1px 0 rgba(255,255,255,.35);
-    -webkit-tap-highlight-color:transparent; transition:transform .18s cubic-bezier(.2,.8,.2,1), border-color .18s, background .18s, box-shadow .18s; touch-action:none; }
+    -webkit-tap-highlight-color:transparent; transition:transform .18s cubic-bezier(.2,.8,.2,1), border-color .18s, background .18s, box-shadow .18s; }
   .tasbih:active { transform:scale(.97); }
-  .tasbih.pulling { transform:translateY(var(--pull,0px)) scale(.985); transition:none; }
-  .tasbih.armed { border-color:color-mix(in srgb, var(--accent) 42%, var(--line)); box-shadow:0 12px 30px rgba(15,23,42,.1), 0 0 0 4px color-mix(in srgb, var(--accent) 10%, transparent); }
   .tasbih::before { content:""; position:absolute; inset:auto 12px 10px 12px; height:5px; border-radius:999px; background:color-mix(in srgb, var(--ink-faint) 14%, transparent); }
   .tasbih .fill { position:absolute; left:12px; bottom:10px; height:5px; width:var(--progress,0%); max-width:calc(100% - 24px); border-radius:999px;
     background:linear-gradient(90deg, var(--accent), color-mix(in srgb, var(--accent) 70%, white)); transition:width .22s cubic-bezier(.2,.8,.2,1), background .18s; }
@@ -2352,7 +2350,7 @@ https://azkar.nurtech.dev/app`);
     const data = key === 'favorites' ? { title:'Избранное' } : AZKAR[key];
     document.getElementById('rTitle').textContent = data.title;
     const rHint = document.getElementById('rHint');
-    if(rHint){ if(!localStorage.getItem('azkar_taphint_seen')){ rHint.textContent='Тапни или потяни счётчик'; localStorage.setItem('azkar_taphint_seen','1'); } else rHint.textContent=''; }
+    if(rHint){ if(!localStorage.getItem('azkar_taphint_seen')){ rHint.textContent='Тапни счётчик'; localStorage.setItem('azkar_taphint_seen','1'); } else rHint.textContent=''; }
     resetReorder();
     const list = document.getElementById('zikrList'); list.innerHTML = '';
     CURRENT_ITEMS = orderedItems(key);
@@ -2495,24 +2493,7 @@ https://azkar.nurtech.dev/app`);
         if(done) scrollToNextTasbih();
       }
       render(+btn.dataset.cur || 0, false);
-      const PULL_MAX=42, PULL_ARM=22;
-      let pullStart=0, active=false, armed=false, suppressClick=false, lastGesture=0;
-      function setPull(raw){
-        const sign = raw < 0 ? -1 : 1;
-        const abs = Math.abs(raw);
-        const eased = abs > PULL_ARM ? PULL_ARM + (abs - PULL_ARM) * .45 : abs;
-        const px = sign * Math.min(PULL_MAX, eased);
-        btn.style.setProperty('--pull', px+'px');
-        const a = abs >= PULL_ARM;
-        if(a!==armed){ armed=a; btn.classList.toggle('armed', armed); if(armed) tgHaptic('light'); }
-      }
-      function resetPull(){ btn.classList.remove('pulling','armed'); btn.style.setProperty('--pull','0px'); armed=false; }
-      function gestureInc(){ const now=Date.now(); if(now-lastGesture<160) return; lastGesture=now; suppressClick=true; inc(); setTimeout(()=>{ suppressClick=false; }, 180); }
-      btn.addEventListener('pointerdown', e=>{ if(REORDER) return; if(e.button!=null && e.button!==0) return; pullStart=e.clientY; active=true; armed=false; btn.classList.add('pulling'); try{ btn.setPointerCapture(e.pointerId); }catch(_e){} });
-      btn.addEventListener('pointermove', e=>{ if(!active) return; setPull(e.clientY-pullStart); });
-      btn.addEventListener('pointerup', e=>{ if(!active) return; active=false; try{ btn.releasePointerCapture(e.pointerId); }catch(_e){} if(armed) gestureInc(); resetPull(); });
-      btn.addEventListener('pointercancel', ()=>{ active=false; resetPull(); });
-      btn.addEventListener('click', e=>{ e.stopPropagation(); if(suppressClick || REORDER) return; inc(); });
+      btn.addEventListener('click', e=>{ e.stopPropagation(); if(REORDER) return; inc(); });
       card.addEventListener('click', e=>{ if(REORDER || card.dataset.dragLock==='1' || e.target.closest('.cbtn, .mini, a, .tasbih, .src-row')) return; inc(); });
       card.querySelector('.js-src').addEventListener('click', e=>{ e.stopPropagation(); openInfo(CURRENT_ITEMS.find(x=>x._id===card.dataset.id) || CURRENT_ITEMS[idx]); });
       card.querySelector('.js-fav').addEventListener('click', e=>{
