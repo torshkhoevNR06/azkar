@@ -594,6 +594,18 @@
   .modal .m-actions .secondary { background:var(--surface-2); color:var(--ink-soft); }
   :root[data-theme="dark"] .modal .m-actions .primary { color:var(--bg); }
   @media (prefers-color-scheme: dark){ :root:not([data-theme]) .modal .m-actions .primary { color:var(--bg); } }
+  .confirm-modal { z-index:2200; }
+  .confirm-modal .confirm-card { position:absolute; left:50%; top:50%; width:min(360px, calc(100vw - 40px)); transform:translate(-50%, -46%) scale(.96);
+    opacity:0; border:1px solid var(--line); border-radius:18px; background:var(--surface); color:var(--ink); box-shadow:0 24px 70px rgba(0,0,0,.38);
+    padding:18px; transition:transform .2s cubic-bezier(.22,.8,.2,1), opacity .18s; }
+  .confirm-modal.open .confirm-card { opacity:1; transform:translate(-50%, -50%) scale(1); }
+  .confirm-title { font-size:17px; line-height:1.25; font-weight:800; color:var(--ink); }
+  .confirm-text { margin-top:8px; font-size:13.5px; line-height:1.45; color:var(--ink-soft); }
+  .confirm-actions { display:flex; justify-content:flex-end; gap:9px; margin-top:18px; }
+  .confirm-actions button { min-height:40px; padding:0 16px; border-radius:12px; border:1px solid color-mix(in srgb, var(--ink-faint) 58%, var(--line)); font:inherit; font-size:13.5px; font-weight:800; cursor:pointer;
+    background:var(--surface); color:var(--ink); -webkit-tap-highlight-color:transparent; transition:transform .12s, background .15s, color .15s, border-color .15s; }
+  .confirm-actions button:active { transform:scale(.96); }
+  .confirm-actions .danger { background:color-mix(in srgb, var(--danger, #ef4444) 14%, var(--surface-2)); color:color-mix(in srgb, var(--danger, #ef4444) 82%, var(--ink)); border-color:color-mix(in srgb, var(--danger, #ef4444) 42%, var(--line)); }
   .radio-choice-list { display:flex; flex-direction:column; gap:10px; margin-top:14px; }
   .radio-choice { width:100%; min-height:76px; display:flex; align-items:center; gap:13px; padding:14px;
     border-radius:17px; border:1px solid var(--line); background:var(--surface-2); color:var(--ink);
@@ -774,6 +786,55 @@
   .qpc-bar { display:block; height:8px; border-radius:99px; background:var(--surface-2); overflow:hidden; margin:9px 0 7px; }
   .qpc-bar i { display:block; height:100%; width:0; border-radius:99px; background:var(--accent); transition:width .5s cubic-bezier(.22,.8,.2,1); }
   .qpc-sub { font-size:12px; color:var(--ink-faint); }
+  .q-manual-btn { display:flex; align-items:center; justify-content:center; gap:8px; width:100%; min-height:44px; margin:0 0 12px; padding:11px 14px;
+    border-radius:14px; border:1px solid color-mix(in srgb, var(--accent) 30%, var(--line)); background:color-mix(in srgb, var(--accent-soft) 70%, var(--surface));
+    color:var(--accent-deep); font:inherit; font-size:14px; font-weight:750; cursor:pointer; -webkit-tap-highlight-color:transparent; transition:transform .13s; }
+  .q-manual-btn:active { transform:scale(.99); }
+  .q-manual-form { display:flex; flex-direction:column; gap:12px; }
+  .q-manual-field { display:flex; flex-direction:column; gap:7px; }
+  .q-manual-field label { font-size:12px; font-weight:750; color:var(--ink-faint); }
+  .q-manual-row { display:grid; grid-template-columns:1fr 1fr; gap:9px; }
+  .q-select { position:relative; }
+  .q-select-btn { width:100%; min-height:44px; border:1px solid var(--line); border-radius:13px; background:var(--surface); color:var(--ink);
+    padding:0 42px 0 14px; font:inherit; font-size:15px; outline:none; display:flex; align-items:center; justify-content:space-between;
+    gap:10px; cursor:pointer; text-align:left; -webkit-tap-highlight-color:transparent; transition:border-color .16s, background .16s, box-shadow .16s; }
+  .q-select-btn:focus-visible, .q-select.open .q-select-btn { border-color:color-mix(in srgb, var(--accent) 45%, var(--line)); box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 12%, transparent); }
+  .q-select-value { min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .q-select-arrow { position:absolute; right:14px; top:50%; width:18px; height:18px; transform:translateY(-50%) rotate(0deg); color:var(--ink-soft);
+    pointer-events:none; transition:transform .22s cubic-bezier(.22,.8,.2,1), color .16s; }
+  .q-select.open .q-select-arrow { transform:translateY(-50%) rotate(180deg); color:var(--accent-deep); }
+  .q-select-menu { position:fixed; left:var(--q-select-left,0px); top:var(--q-select-top,0px); width:var(--q-select-width,100px); z-index:2100; display:none; overflow:hidden;
+    border:1px solid color-mix(in srgb, var(--line) 92%, var(--ink-faint)); border-radius:14px; background:var(--surface);
+    box-shadow:0 18px 46px rgba(0,0,0,.24), 0 1px 0 rgba(255,255,255,.04); }
+  .q-select.open .q-select-menu { display:block; animation:qSelectIn .14s cubic-bezier(.22,.8,.2,1); }
+  .q-select-options { max-height:var(--q-select-max, min(242px, 45vh)); overflow-y:auto; overflow-x:hidden; padding:5px; overscroll-behavior:contain; scrollbar-width:thin; scrollbar-color:color-mix(in srgb, var(--ink-faint) 42%, transparent) transparent; }
+  .q-select-options::-webkit-scrollbar { width:7px; }
+  .q-select-options::-webkit-scrollbar-track { background:transparent; margin:7px 0; }
+  .q-select-options::-webkit-scrollbar-thumb { background:color-mix(in srgb, var(--ink-faint) 42%, transparent); border-radius:999px; border:2px solid transparent; background-clip:content-box; }
+  .q-select-option { width:100%; min-height:34px; border:0; border-radius:10px; background:transparent; color:var(--ink); font:inherit; font-size:14.5px;
+    display:flex; align-items:center; padding:0 10px; cursor:pointer; text-align:left; }
+  .q-select-option:active { transform:scale(.99); }
+  .q-select-option:hover, .q-select-option:focus-visible { background:var(--surface-2); outline:none; }
+  .q-select-option.on { background:var(--accent-soft); color:var(--accent-deep); font-weight:800; }
+  @keyframes qSelectIn { from{ opacity:0; transform:translateY(-4px) scale(.98); } to{ opacity:1; transform:translateY(0) scale(1); } }
+  .q-manual-actions { display:flex; gap:9px; }
+  .q-manual-actions button { flex:1; min-height:44px; border:1px solid color-mix(in srgb, var(--ink-faint) 58%, var(--line)); border-radius:13px; background:var(--surface); color:var(--ink); font:inherit; font-size:14px; font-weight:800; }
+  .q-manual-actions .ghost { background:var(--surface); color:var(--ink); border-color:color-mix(in srgb, var(--ink-faint) 58%, var(--line)); }
+  .q-manual-note { font-size:12.5px; line-height:1.45; color:var(--ink-faint); }
+  .q-manual-list { display:flex; flex-direction:column; gap:8px; margin-top:14px; max-height:min(336px, 38vh); overflow-y:auto; overflow-x:hidden;
+    padding-right:4px; border-radius:16px; overscroll-behavior:contain; scrollbar-width:thin; scrollbar-color:color-mix(in srgb, var(--ink-faint) 42%, transparent) transparent; }
+  .q-manual-list::-webkit-scrollbar { width:7px; }
+  .q-manual-list::-webkit-scrollbar-track { background:transparent; margin:8px 0; }
+  .q-manual-list::-webkit-scrollbar-thumb { background:color-mix(in srgb, var(--ink-faint) 42%, transparent); border-radius:999px; border:2px solid transparent; background-clip:content-box; }
+  .q-manual-entry { display:flex; align-items:center; gap:10px; padding:11px 12px; border:1px solid var(--line); border-radius:14px; background:var(--surface); }
+  .q-manual-entry .qm-tag { flex:0 0 auto; padding:4px 8px; border-radius:999px; background:var(--accent-soft); color:var(--accent-deep); font-size:11px; font-weight:800; }
+  .q-manual-entry .qm-body { flex:1 1 auto; min-width:0; }
+  .q-manual-entry .qm-title { display:block; font-size:13.5px; font-weight:750; color:var(--ink); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .q-manual-entry .qm-sub { display:block; font-size:11.5px; color:var(--ink-faint); margin-top:1px; }
+  .q-manual-entry .qm-act { flex:0 0 auto; display:flex; gap:4px; }
+  .q-manual-entry .qm-act button { width:34px; height:34px; border:0; border-radius:10px; background:var(--surface-2); color:var(--ink-soft); display:grid; place-items:center; padding:0; }
+  .q-manual-entry .qm-act .danger { background:color-mix(in srgb, var(--danger, #ef4444) 18%, var(--surface-2)); color:var(--danger, #ef4444); border:1px solid color-mix(in srgb, var(--danger, #ef4444) 28%, transparent); }
+  @media (max-width:360px){ .q-manual-row { grid-template-columns:1fr; } .q-manual-entry { align-items:flex-start; } }
   .qm-stats { display:grid; grid-template-columns:1fr 1fr 1fr; gap:9px; margin:2px 0 14px; }
   .qm-stat { padding:13px 10px; border-radius:14px; background:var(--surface-2); text-align:center; }
   .qm-stat b { display:block; font-size:20px; font-weight:800; color:var(--ink); font-variant-numeric:tabular-nums; }
@@ -987,8 +1048,10 @@
   .qrv-g.forgot { color:#c0392b; }
   /* тост */
   .q-toast { position:fixed; left:50%; bottom:calc(90px + var(--tg-safe-bottom)); transform:translate(-50%, 12px); z-index:60; max-width:88%;
-    padding:11px 18px; border-radius:13px; background:color-mix(in srgb, var(--ink) 88%, #000); color:#fff; font-size:14px; font-weight:600;
-    opacity:0; pointer-events:none; transition:opacity .22s, transform .22s; box-shadow:0 8px 24px rgba(0,0,0,.28); }
+    padding:11px 18px; border-radius:13px; background:color-mix(in srgb, var(--bg) 72%, transparent); color:#fff; border:1px solid color-mix(in srgb, var(--ink-faint) 34%, transparent);
+    font-size:14px; font-weight:700; opacity:0; pointer-events:none; transition:opacity .22s, transform .22s; box-shadow:0 14px 34px rgba(0,0,0,.34);
+    backdrop-filter:blur(14px) saturate(1.15); -webkit-backdrop-filter:blur(14px) saturate(1.15); }
+  .q-toast.dark { background:color-mix(in srgb, var(--bg) 78%, transparent); color:#fff; border-color:color-mix(in srgb, var(--ink-faint) 38%, transparent); }
   .q-toast.show { opacity:1; transform:translate(-50%, 0); }
   /* радио */
   .iconbtn.on { color:var(--accent-deep); background:var(--accent-soft); }
@@ -1609,6 +1672,10 @@
         <span class="qpc-bar"><i id="qpcBar"></i></span>
         <div class="qpc-sub" id="qpcSub">прочитано 0 из 6236 аятов · карта →</div>
       </button>
+      <button type="button" class="q-manual-btn" onclick="openQManual()">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/><path d="M4 19.5V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v13.5"/></svg>
+        Отметить прочитанное
+      </button>
       <div class="q-search">
         <span class="qs-ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg></span>
         <input type="text" id="qSearch" inputmode="search" placeholder="Найти суру — название или номер" autocomplete="off">
@@ -1729,6 +1796,18 @@
         <button class="m-close" id="qSheetClose" aria-label="Закрыть"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
       </div>
       <div id="qSheetBody"></div>
+    </div>
+  </div>
+
+  <div class="modal confirm-modal" id="confirmModal" role="dialog" aria-modal="true" aria-labelledby="confirmTitle" aria-describedby="confirmText">
+    <div class="scrim" id="confirmScrim"></div>
+    <div class="confirm-card">
+      <div class="confirm-title" id="confirmTitle">Подтвердить действие</div>
+      <div class="confirm-text" id="confirmText">Это действие нельзя отменить.</div>
+      <div class="confirm-actions">
+        <button type="button" id="confirmCancel">Отмена</button>
+        <button type="button" class="danger" id="confirmOk">Удалить</button>
+      </div>
     </div>
   </div>
 
@@ -5190,23 +5269,227 @@ https://azkar.nurtech.dev/app`);
   function qAddSec(sec){ sec=Math.round(sec); if(sec<=0) return; const s=qStats(), t=qToday(); s.days[t]=s.days[t]||{sec:0,ay:0}; s.days[t].sec+=sec; s.totSec=(s.totSec||0)+sec; qStatsSave(s); }
   function qIsPageBased(){ return QPREFS.mode==='page'; }
   function qUsesPageFonts(){ return QPREFS.mode==='page' || QPREFS.mode==='reading'; }  // цветной пофайловый мединский
-  function qMarkAyah(){ const s=qStats(), t=qToday(); s.days[t]=s.days[t]||{sec:0,ay:0}; s.days[t].ay+=1; s.totAy=(s.totAy||0)+1; qStatsSave(s); }
+  function qMarkAyah(){ const s=qStats(), t=qToday(); s.days[t]=s.days[t]||{sec:0,ay:0}; s.days[t].ay+=1; s.totAy=(s.totAy||0)+1; qStatsSave(s); bumpStreak(); }
   function qFmtMin(sec){ const m=Math.round((sec||0)/60); if(m<1) return sec>0?'меньше мин':'0 мин'; if(m<60) return m+' мин'; const h=Math.floor(m/60), mm=m%60; return h+' ч'+(mm?' '+mm+' м':''); }
 
   // ---- прогресс чтения: битовая карта прочитанных аятов + хатмы (синк через CloudStorage) ----
-  const QREAD_KEY='azkar_quran_read', Q_TOTAL_AYAHS=6236, Q_BYTES=780;
+  const QREAD_KEY='azkar_quran_read', QMANUAL_KEY='azkar_quran_manual', Q_TOTAL_AYAHS=6236, Q_BYTES=780;
   let QREAD=null;
-  function qReadLoad(){ if(QREAD) return QREAD; let khatm=0, bits=new Uint8Array(Q_BYTES);
-    try{ const raw=JSON.parse(localStorage.getItem(QREAD_KEY)||'null'); if(raw){ khatm=raw.k||0; if(raw.b){ const bin=atob(raw.b); for(let i=0;i<bin.length&&i<Q_BYTES;i++) bits[i]=bin.charCodeAt(i)&255; } } }catch(e){}
-    QREAD={ bits:bits, khatm:khatm }; if(QURAN._lastKhatm==null) QURAN._lastKhatm=khatm; return QREAD; }
-  function qReadSave(){ if(!QREAD) return; let bin=''; for(let i=0;i<QREAD.bits.length;i++) bin+=String.fromCharCode(QREAD.bits[i]); try{ localStorage.setItem(QREAD_KEY, JSON.stringify({ v:1, k:QREAD.khatm, b:btoa(bin) })); }catch(e){} }
+  function qBitsFromB64(b64){ const bits=new Uint8Array(Q_BYTES); try{ const bin=atob(b64||''); for(let i=0;i<bin.length&&i<Q_BYTES;i++) bits[i]=bin.charCodeAt(i)&255; }catch(e){} return bits; }
+  function qBitsToB64(bits){ let bin=''; for(let i=0;i<Q_BYTES;i++) bin+=String.fromCharCode((bits&&bits[i])||0); return btoa(bin); }
+  function qManualLoad(){ try{ const m=JSON.parse(localStorage.getItem(QMANUAL_KEY)||'null'); if(m&&Array.isArray(m.items)) return m; }catch(e){} return { v:1, items:[] }; }
+  function qManualSave(m){ try{ localStorage.setItem(QMANUAL_KEY, JSON.stringify({ v:1, items:(m&&m.items)||[] })); }catch(e){} }
+  function qReadRebuildBits(st){
+    if(!st) st=qReadLoad();
+    const bits=new Uint8Array(Q_BYTES);
+    for(let i=0;i<Q_BYTES;i++) bits[i]=st.auto[i]||0;
+    const man=qManualLoad();
+    (man.items||[]).forEach(function(rec){ (rec.refs||[]).forEach(function(k){ const p=String(k).split(':'), bi=qBitIndex(parseInt(p[0],10), parseInt(p[1],10)); if(bi>=0) bits[bi>>3]|=(1<<(bi&7)); }); });
+    st.bits=bits;
+    return bits;
+  }
+  function qReadLoad(){ if(QREAD) return QREAD; let khatm=0, bits=new Uint8Array(Q_BYTES), auto=null;
+    try{ const raw=JSON.parse(localStorage.getItem(QREAD_KEY)||'null'); if(raw){ khatm=raw.k||0; bits=qBitsFromB64(raw.b); auto=raw.a?qBitsFromB64(raw.a):bits.slice(); } }catch(e){}
+    QREAD={ bits:bits, auto:auto||bits.slice(), khatm:khatm }; qReadRebuildBits(QREAD); if(QURAN._lastKhatm==null) QURAN._lastKhatm=khatm; return QREAD; }
+  function qReadSave(){ if(!QREAD) return; qReadRebuildBits(QREAD); try{ localStorage.setItem(QREAD_KEY, JSON.stringify({ v:2, k:QREAD.khatm, b:qBitsToB64(QREAD.bits), a:qBitsToB64(QREAD.auto) })); }catch(e){} }
   function qBuildOffsets(){ if(QURAN.offsets||!QURAN.index) return; const off={}; let c=0; const s=QURAN.index.slice().sort(function(a,b){ return a.n-b.n; }); for(let i=0;i<s.length;i++){ off[s[i].n]=c; c+=s[i].c; } QURAN.offsets=off; }
   function qBitIndex(s,a){ qBuildOffsets(); const o=QURAN.offsets; if(!o||!(s in o)) return -1; return o[s]+(a-1); }
   function qIsRead(s,a){ const st=qReadLoad(); const bi=qBitIndex(s,a); if(bi<0) return false; return !!(st.bits[bi>>3] & (1<<(bi&7))); }
-  function qTotalRead(){ const st=qReadLoad(); let c=0; for(let i=0;i<st.bits.length;i++){ let b=st.bits[i]; while(b){ c+=b&1; b>>=1; } } return c; }
-  function qSuraReadCount(s){ const su=(QURAN.index||[]).find(function(x){ return x.n===s; }); if(!su) return 0; qBuildOffsets(); const o=(QURAN.offsets||{})[s]; if(o==null) return 0; const st=qReadLoad(); let c=0; for(let a=0;a<su.c;a++){ const bi=o+a; if(st.bits[bi>>3]&(1<<(bi&7))) c++; } return c; }
-  function qMarkRead(s,a){ const bi=qBitIndex(s,a); if(bi<0) return false; const st=qReadLoad(); const by=bi>>3, m=1<<(bi&7); if(st.bits[by]&m) return false; st.bits[by]|=m;
-    if(qTotalRead()>=Q_TOTAL_AYAHS){ st.khatm++; st.bits=new Uint8Array(Q_BYTES); } qReadSave(); qHifzSyncSoon(); return true; }
+  function qTotalRead(){ const st=qReadLoad(); qReadRebuildBits(st); let c=0; for(let i=0;i<st.bits.length;i++){ let b=st.bits[i]; while(b){ c+=b&1; b>>=1; } } return c; }
+  function qSuraReadCount(s){ const su=(QURAN.index||[]).find(function(x){ return x.n===s; }); if(!su) return 0; qBuildOffsets(); const o=(QURAN.offsets||{})[s]; if(o==null) return 0; const st=qReadLoad(); qReadRebuildBits(st); let c=0; for(let a=0;a<su.c;a++){ const bi=o+a; if(st.bits[bi>>3]&(1<<(bi&7))) c++; } return c; }
+  function qMarkRead(s,a){ const bi=qBitIndex(s,a); if(bi<0) return false; const st=qReadLoad(); const by=bi>>3, m=1<<(bi&7); if(st.bits[by]&m){ st.auto[by]|=m; qReadSave(); return false; } st.auto[by]|=m; st.bits[by]|=m;
+    if(qTotalRead()>=Q_TOTAL_AYAHS){ st.khatm++; st.bits=new Uint8Array(Q_BYTES); st.auto=new Uint8Array(Q_BYTES); qManualSave({ v:1, items:[] }); } qReadSave(); qHifzSyncSoon(); return true; }
+
+  // ---- ручные отметки чтения: бумажный мусхаф / другие приложения ----
+  let QMANUAL_FORM={ mode:'pages', edit:null, pageFrom:1, pageTo:1, sura:1, ayahFrom:1, ayahTo:1 };
+  function qManualDefaultForm(){ return { mode:'pages', edit:null, pageFrom:1, pageTo:1, sura:1, ayahFrom:1, ayahTo:1 }; }
+  function qRefUniq(refs){ const seen={}, out=[]; (refs||[]).forEach(function(k){ if(!seen[k]){ seen[k]=1; out.push(k); } }); return out; }
+  function qRefsForPages(from,to){
+    from=Math.max(1,Math.min(QP_TOTAL,parseInt(from,10)||1)); to=Math.max(from,Math.min(QP_TOTAL,parseInt(to,10)||from));
+    const jobs=[]; for(let p=from;p<=to;p++) jobs.push(qLoadPage(p).catch(function(){ return null; }));
+    return Promise.all(jobs).then(function(pages){ const refs=[]; pages.forEach(function(d){ if(!d) return; (d.lines||[]).forEach(function(l){ (l.w||[]).forEach(function(w){ if(w.k) refs.push(w.k); }); }); }); return qRefUniq(refs); });
+  }
+  function qRefsForAyahs(s,from,to){ const su=(QURAN.index||[]).find(function(x){ return x.n===s; }); if(!su) return []; from=Math.max(1,Math.min(su.c,parseInt(from,10)||1)); to=Math.max(from,Math.min(su.c,parseInt(to,10)||from)); const refs=[]; for(let a=from;a<=to;a++) refs.push(s+':'+a); return refs; }
+  function qManualLabel(rec){
+    if(!rec) return '';
+    if(rec.type==='pages') return 'Стр. '+rec.from+'–'+rec.to;
+    const su=(QURAN.index||[]).find(function(x){ return x.n===rec.sura; });
+    return (su?su.nr:('Сура '+rec.sura))+' · аяты '+rec.from+'–'+rec.to;
+  }
+  function qManualDateLabel(d){ if(!d) return 'сегодня'; const t=qToday(); if(d===t) return 'сегодня'; const p=d.split('-'); return p.length===3 ? (p[2]+'.'+p[1]+'.'+p[0]) : d; }
+  function qManualTouchStats(delta,date){
+    delta=parseInt(delta,10)||0; if(!delta) return;
+    const s=qStats(), d=date||qToday(); s.days[d]=s.days[d]||{sec:0,ay:0};
+    s.days[d].ay=Math.max(0,(s.days[d].ay||0)+delta);
+    s.totAy=Math.max(0,(s.totAy||0)+delta);
+    qStatsSave(s);
+  }
+  function qActivityOnDay(d){
+    const h=loadHistory(), st=qStats(), qd=st.days&&st.days[d];
+    if(qd && ((qd.ay||0)>0 || (qd.sec||0)>0)) return true;
+    return !!(h[d] && Object.values(h[d].sessions||{}).some(function(s){ return s&&s.started; }));
+  }
+  function qRecalcStreak(){
+    let count=0, last=null;
+    for(let i=0;i<370;i++){ const d=new Date(); d.setDate(d.getDate()-i); const key=todayStr(d); if(qActivityOnDay(key)){ if(i===count){ count++; if(!last) last=key; } else break; } else if(i===0){ break; } else break; }
+    try{ localStorage.setItem('azkar_streak', JSON.stringify({ last:last, count:count })); }catch(e){}
+    updateStreakUI();
+  }
+  function qManualRefresh(){
+    qReadSave(); qRecalcStreak(); qHifzSyncSoon();
+    renderQProgressCard(); renderQuranHome(); updateSoftStats();
+    const qm=document.getElementById('quranMap'); if(qm&&qm.classList.contains('active')&&QURAN.index) renderQuranMap(QURAN.index);
+  }
+  function qManualSelectHtml(field, items, sel){
+    items=items||[]; const current=items.find(function(x){ return +x.value===+sel; }) || items[0] || { value:sel, label:String(sel||'') };
+    return '<div class="q-select" data-field="'+escHtml(field)+'">'
+      +'<button type="button" class="q-select-btn" aria-haspopup="listbox" aria-expanded="false" onclick="qManualSelectToggle(this)">'
+      +'<span class="q-select-value">'+escHtml(current.label)+'</span>'
+      +'<svg class="q-select-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>'
+      +'</button><div class="q-select-menu"><div class="q-select-options" role="listbox">'
+      +items.map(function(x){ const on=+x.value===+sel; return '<button type="button" class="q-select-option'+(on?' on':'')+'" role="option" aria-selected="'+(on?'true':'false')+'" onclick="qManualPick(\''+field+'\','+parseInt(x.value,10)+')">'+escHtml(x.label)+'</button>'; }).join('')
+      +'</div></div></div>';
+  }
+  function qManualNumberItems(from,to){ const out=[]; for(let i=from;i<=to;i++) out.push({ value:i, label:String(i) }); return out; }
+  function qManualSuraItems(){ return (QURAN.index||[]).map(function(s){ return { value:s.n, label:s.n+'. '+s.nr }; }); }
+  function qManualAyahMax(){ const su=(QURAN.index||[]).find(function(x){ return x.n===QMANUAL_FORM.sura; }); return su?su.c:7; }
+  function openQManual(editId){
+    qLoadIndex().then(function(){ QTAF.settings=false; const man=qManualLoad(); const rec=editId ? (man.items||[]).find(function(x){ return x.id===editId; }) : null;
+      if(rec){ QMANUAL_FORM={ mode:rec.type||'pages', edit:rec.id, pageFrom:rec.from||1, pageTo:rec.to||1, sura:rec.sura||1, ayahFrom:rec.from||1, ayahTo:rec.to||1 }; }
+      else QMANUAL_FORM=qManualDefaultForm();
+      document.getElementById('qSheetTitle').textContent=rec?'Изменить запись':'Отметить прочитанное';
+      renderQManualSheet();
+      openQSheet();
+    }).catch(function(){ qToast('Не удалось загрузить список сур'); });
+  }
+  function renderQManualSheet(){
+    const f=QMANUAL_FORM, max=qManualAyahMax();
+    if(f.ayahFrom>max) f.ayahFrom=max; if(f.ayahTo>max) f.ayahTo=max; if(f.ayahTo<f.ayahFrom) f.ayahTo=f.ayahFrom;
+    let html='<div class="q-manual-form">'
+      +'<div class="seg"><button type="button" class="'+(f.mode==='pages'?'on':'')+'" onclick="qManualMode(\'pages\')">Страницы</button><button type="button" class="'+(f.mode==='ayahs'?'on':'')+'" onclick="qManualMode(\'ayahs\')">Сура и аяты</button></div>';
+    if(f.mode==='pages'){
+      html+='<div class="q-manual-row"><div class="q-manual-field"><label>С первой страницы</label>'+qManualSelectHtml('pageFrom',qManualNumberItems(1,QP_TOTAL),f.pageFrom)+'</div>'
+        +'<div class="q-manual-field"><label>По страницу</label>'+qManualSelectHtml('pageTo',qManualNumberItems(f.pageFrom,QP_TOTAL),Math.max(f.pageFrom,f.pageTo))+'</div></div>';
+    } else {
+      html+='<div class="q-manual-field"><label>Сура</label>'+qManualSelectHtml('sura',qManualSuraItems(),f.sura)+'</div>'
+        +'<div class="q-manual-row"><div class="q-manual-field"><label>С аята</label>'+qManualSelectHtml('ayahFrom',qManualNumberItems(1,max),f.ayahFrom)+'</div>'
+        +'<div class="q-manual-field"><label>По аят</label>'+qManualSelectHtml('ayahTo',qManualNumberItems(f.ayahFrom,max),Math.max(f.ayahFrom,f.ayahTo))+'</div></div>';
+    }
+    html+='<div class="q-manual-note">Запись будет внесена вручную и учтётся только в прогрессе чтения и серии дней.</div>'
+      +'<div class="q-manual-actions"><button type="button" onclick="qManualSubmit()">'+(f.edit?'Сохранить':'Отметить')+'</button>'+(f.edit?'<button type="button" class="ghost" onclick="qManualCancelEdit()">Отмена</button>':'')+'</div>'
+      +'</div>'+qManualHistoryHtml();
+    document.getElementById('qSheetBody').innerHTML=html;
+  }
+  function qManualHistoryHtml(){ const items=(qManualLoad().items||[]).slice().sort(function(a,b){ return String(b.created||'').localeCompare(String(a.created||'')); });
+    if(!items.length) return '<div class="m-note" style="margin-top:14px">Ручных записей пока нет.</div>';
+    return '<div class="q-manual-list">'+items.map(function(r){ return '<div class="q-manual-entry"><span class="qm-tag">Вручную</span><span class="qm-body"><span class="qm-title">'+escHtml(qManualLabel(r))+'</span><span class="qm-sub">'+qManualDateLabel(r.date)+' · '+((r.refs||[]).length)+' '+qPlural((r.refs||[]).length,'аят','аята','аятов')+'</span></span><span class="qm-act"><button type="button" aria-label="Изменить" onclick="openQManual(\''+r.id+'\')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></button><button type="button" class="danger" aria-label="Удалить" onclick="qManualDelete(\''+r.id+'\')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/></svg></button></span></div>'; }).join('')+'</div>';
+  }
+  function qManualCloseSelects(except){
+    document.querySelectorAll('.q-select.open').forEach(function(box){
+      if(except && box===except) return;
+      box.classList.remove('open');
+      const btn=box.querySelector('.q-select-btn'); if(btn) btn.setAttribute('aria-expanded','false');
+    });
+  }
+  function qManualPositionSelect(box){
+    const btn=box&&box.querySelector?box.querySelector('.q-select-btn'):null, menu=box&&box.querySelector?box.querySelector('.q-select-menu'):null;
+    if(!btn || !menu) return;
+    const r=btn.getBoundingClientRect(), gap=3, side=8;
+    const left=Math.max(side, Math.min(r.left, window.innerWidth-r.width-side));
+    const top=r.bottom+gap;
+    const max=Math.max(90, Math.min(242, window.innerHeight-top-side));
+    menu.style.setProperty('--q-select-left', left+'px');
+    menu.style.setProperty('--q-select-top', top+'px');
+    menu.style.setProperty('--q-select-width', r.width+'px');
+    menu.style.setProperty('--q-select-max', max+'px');
+  }
+  function qManualSelectToggle(btn){
+    const box=btn && btn.closest ? btn.closest('.q-select') : null; if(!box) return;
+    const willOpen=!box.classList.contains('open');
+    qManualCloseSelects(box);
+    if(willOpen) qManualPositionSelect(box);
+    box.classList.toggle('open', willOpen);
+    btn.setAttribute('aria-expanded', willOpen?'true':'false');
+    if(willOpen){
+      setTimeout(function(){
+        const list=box.querySelector('.q-select-options'), cur=box.querySelector('.q-select-option.on');
+        if(list && cur) list.scrollTop = Math.max(0, cur.offsetTop - list.clientHeight / 2 + cur.offsetHeight / 2);
+      }, 0);
+      tgHaptic('select');
+    }
+  }
+  function qManualPick(k,v){ qManualSet(k,v); tgHaptic('light'); }
+  document.addEventListener('click', function(e){ if(!(e.target && e.target.closest && e.target.closest('.q-select'))) qManualCloseSelects(); });
+  window.addEventListener('resize', function(){ document.querySelectorAll('.q-select.open').forEach(qManualPositionSelect); });
+  function qManualMode(mode){ QMANUAL_FORM.mode=mode; renderQManualSheet(); tgHaptic('light'); }
+  function qManualSet(k,v){ v=parseInt(v,10)||1; QMANUAL_FORM[k]=v;
+    if(k==='pageFrom' && QMANUAL_FORM.pageTo<v) QMANUAL_FORM.pageTo=v;
+    if(k==='sura'){ QMANUAL_FORM.ayahFrom=1; QMANUAL_FORM.ayahTo=1; }
+    if(k==='ayahFrom' && QMANUAL_FORM.ayahTo<v) QMANUAL_FORM.ayahTo=v;
+    renderQManualSheet();
+  }
+  function qManualCancelEdit(){ QMANUAL_FORM=qManualDefaultForm(); const t=document.getElementById('qSheetTitle'); if(t) t.textContent='Отметить прочитанное'; renderQManualSheet(); tgHaptic('light'); }
+  function qManualHasDuplicate(f, items){
+    const date=qToday(), type=f.mode;
+    if(type==='pages'){
+      const from=f.pageFrom, to=Math.max(f.pageFrom,f.pageTo);
+      return (items||[]).some(function(x){ return x.id!==f.edit && x.date===date && x.type==='pages' && x.from===from && x.to===to; });
+    }
+    const from=f.ayahFrom, to=Math.max(f.ayahFrom,f.ayahTo);
+    return (items||[]).some(function(x){ return x.id!==f.edit && x.date===date && x.type==='ayahs' && x.sura===f.sura && x.from===from && x.to===to; });
+  }
+  function qManualSubmit(){
+    const f=QMANUAL_FORM, man=qManualLoad(), items=man.items||[];
+    if(!f.edit && qManualHasDuplicate(f, items)){ qToast('Такая запись уже есть'); tgHaptic('light'); return; }
+    const p=(f.mode==='pages') ? qRefsForPages(f.pageFrom,f.pageTo) : Promise.resolve(qRefsForAyahs(f.sura,f.ayahFrom,f.ayahTo));
+    p.then(function(refs){ if(!refs.length){ qToast('Не найден диапазон'); return; }
+      const old=f.edit?items.find(function(x){ return x.id===f.edit; }):null;
+      if(old) qManualTouchStats(-((old.refs||[]).length), old.date);
+      const rec={ id:old?old.id:('qm'+Date.now().toString(36)+Math.random().toString(36).slice(2,6)), type:f.mode, date:qToday(), created:old?old.created:new Date().toISOString(), updated:new Date().toISOString(), refs:refs };
+      if(f.mode==='pages'){ rec.from=f.pageFrom; rec.to=Math.max(f.pageFrom,f.pageTo); }
+      else { rec.sura=f.sura; rec.from=f.ayahFrom; rec.to=Math.max(f.ayahFrom,f.ayahTo); }
+      if(old){ const i=items.indexOf(old); items[i]=rec; } else items.unshift(rec);
+      qManualSave({ v:1, items:items }); qManualTouchStats(refs.length, rec.date); qManualRefresh(); renderQManualSheet(); qToast(old?'Запись обновлена':'Прочитанное отмечено'); tgHaptic('medium');
+    }).catch(function(){ qToast('Не удалось отметить диапазон'); });
+  }
+  function qConfirm(opts){
+    opts=opts||{};
+    const modal=document.getElementById('confirmModal'), title=document.getElementById('confirmTitle'), text=document.getElementById('confirmText'), ok=document.getElementById('confirmOk'), cancel=document.getElementById('confirmCancel'), scrim=document.getElementById('confirmScrim');
+    if(!modal || !ok || !cancel) return Promise.resolve(false);
+    if(title) title.textContent=opts.title||'Подтвердить действие';
+    if(text) text.textContent=opts.text||'Это действие нельзя отменить.';
+    ok.textContent=opts.ok||'OK';
+    cancel.textContent=opts.cancel||'Отмена';
+    return new Promise(function(resolve){
+      let done=false;
+      function finish(v){
+        if(done) return; done=true;
+        modal.classList.remove('open');
+        ok.removeEventListener('click', onOk); cancel.removeEventListener('click', onCancel);
+        if(scrim) scrim.removeEventListener('click', onCancel);
+        document.removeEventListener('keydown', onKey);
+        resolve(v);
+      }
+      function onOk(){ finish(true); }
+      function onCancel(){ finish(false); }
+      function onKey(e){ if(e.key==='Escape') finish(false); }
+      ok.addEventListener('click', onOk);
+      cancel.addEventListener('click', onCancel);
+      if(scrim) scrim.addEventListener('click', onCancel);
+      document.addEventListener('keydown', onKey);
+      modal.classList.add('open');
+      tgHaptic('light');
+      setTimeout(function(){ try{ cancel.focus(); }catch(e){} }, 0);
+    });
+  }
+  function qManualDelete(id){
+    const man=qManualLoad(), items=man.items||[], rec=items.find(function(x){ return x.id===id; }); if(!rec) return;
+    qConfirm({ title:'Удалить запись?', text:'Ручная отметка будет удалена из прогресса чтения.', ok:'Удалить', cancel:'Отменить' }).then(function(yes){
+      if(!yes) return;
+      qManualSave({ v:1, items:items.filter(function(x){ return x.id!==id; }) }); qManualTouchStats(-((rec.refs||[]).length), rec.date);
+      qManualRefresh(); renderQManualSheet(); qToast('Запись удалена', 'dark'); tgHaptic('medium');
+    });
+  }
 
   // ---- заучивание: битовая карта заученных аятов + интервальные повторения (SRS) по сурам ----
   const QMEM_KEY='azkar_quran_mem', SRS_DAYS=[1,3,7,14,30,90,180];
@@ -5242,7 +5525,7 @@ https://azkar.nurtech.dev/app`);
     if(!loc && !cld) return null;
     if(!loc) return JSON.stringify(cld);
     if(!cld) return JSON.stringify(loc);
-    if(k===QREAD_KEY) return JSON.stringify({ v:1, k:Math.max(loc.k||0, cld.k||0), b:qMergeBits(loc.b, cld.b) });
+    if(k===QREAD_KEY) return JSON.stringify({ v:2, k:Math.max(loc.k||0, cld.k||0), b:qMergeBits(loc.b, cld.b), a:qMergeBits(loc.a||loc.b, cld.a||cld.b) });
     // mem: OR битов заученного + слияние srs (при конфликте по суре — более ранний срок повторения, чтобы не пропустить)
     const srs={}, ss=loc.srs||{}, cs=cld.srs||{};
     Object.keys(ss).forEach(function(s){ srs[s]=ss[s]; });
@@ -5259,7 +5542,7 @@ https://azkar.nurtech.dev/app`);
   function qShowReviewBar(){ if(!QREV) return; const b=document.getElementById('qReviewBar'); if(b) b.hidden=false; const t=document.getElementById('qrvTtl'); if(t) t.textContent='Повторение · '+suraNameRu(QREV.queue[QREV.idx])+'  ('+(QREV.idx+1)+'/'+QREV.queue.length+')'; }
   function qReviewGrade(g){ if(!QREV) return; qSrsGrade(QREV.queue[QREV.idx], g); QREV.idx++; if(QREV.idx>=QREV.queue.length){ qEndReview(); qToast('Повторение завершено ✓'); tgHaptic('medium'); } else { qOpenReviewCurrent(); } }
   function qEndReview(){ QREV=null; QHIDE=false; const b=document.getElementById('qReviewBar'); if(b) b.hidden=true; }
-  function qToast(msg){ let t=document.getElementById('qToastEl'); if(!t){ t=document.createElement('div'); t.id='qToastEl'; t.className='q-toast'; document.body.appendChild(t); } t.textContent=msg; t.classList.add('show'); clearTimeout(qToast._t); qToast._t=setTimeout(function(){ t.classList.remove('show'); }, 2200); }
+  function qToast(msg,type){ let t=document.getElementById('qToastEl'); if(!t){ t=document.createElement('div'); t.id='qToastEl'; t.className='q-toast'; document.body.appendChild(t); } t.textContent=msg; t.className='q-toast'+(type?' '+type:''); t.classList.add('show'); clearTimeout(qToast._t); qToast._t=setTimeout(function(){ t.classList.remove('show'); }, 2200); }
 
   // ---- синк прогресса на сервер (чтобы бот знал и напоминал) ----
   let _hifzSyncT=null;
