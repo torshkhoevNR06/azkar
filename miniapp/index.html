@@ -873,7 +873,8 @@
   .qp-deck.qp-anim { transition:transform .26s cubic-bezier(.22,.61,.36,1); }
   .qp-pane { flex:0 0 33.33333%; width:33.33333%; height:100%; display:flex; align-items:center; justify-content:center; overflow:hidden; }
   /* ландшафт: лист по ширине экрана (текст крупный), по вертикали — прокрутка */
-  #qrAyahs.qp-stage.qp-land .qp-pane { align-items:flex-start; overflow-y:auto; overflow-x:hidden; -webkit-overflow-scrolling:touch; }
+  #qrAyahs.qp-stage.qp-land .qp-pane { align-items:flex-start; overflow-y:auto; overflow-x:hidden; -webkit-overflow-scrolling:touch;
+    overscroll-behavior-y:contain; touch-action:pan-y; }
   /* Кегль и габариты листа ставит JS (qSizePaper) от РЕАЛЬНЫХ размеров контейнера — одним проходом.
      Container queries тут неприменимы: в WebView Telegram они дают не ту величину и лист вылезал за экран. */
   .qp-paper {
@@ -5999,8 +6000,12 @@ https://azkar.nurtech.dev/app`);
         if(Math.abs(dx)<6&&Math.abs(dy)<6) return;
         decided=true;
         if(Math.abs(dy)>Math.abs(dx)){ dragging=false; return; }   // вертикальный увод — жест не наш
+        if(wrap.classList.contains('qp-land')){
+          try{ wrap.setPointerCapture(e.pointerId); }catch(err){}  // удерживаем горизонтальный жест на scrollable-панели
+        }
         deck.style.willChange='transform';
       }
+      if(wrap.classList.contains('qp-land')&&e.cancelable) e.preventDefault();
       let d=dx;
       const edge=(QURAN.curPage<=1&&dx>0)||(QURAN.curPage>=QP_TOTAL&&dx<0);
       if(edge) d=dx*0.28;                                          // резина на краях
@@ -6018,9 +6023,9 @@ https://azkar.nurtech.dev/app`);
       setTimeout(function(){ deck.classList.remove('qp-anim'); }, 280);
     };
     wrap.addEventListener('pointerdown', onDown, {passive:true});
-    wrap.addEventListener('pointermove', onMove, {passive:true});
+    wrap.addEventListener('pointermove', onMove, {passive:false});
     wrap.addEventListener('pointerup', onUp, {passive:true});
-    wrap.addEventListener('pointercancel', function(){ if(dragging){ dragging=false; deck.classList.add('qp-anim'); deck.style.setProperty('--qp-drag','0px'); } }, {passive:true});
+    wrap.addEventListener('pointercancel', function(){ if(dragging){ dragging=false; deck.style.willChange=''; deck.classList.add('qp-anim'); deck.style.setProperty('--qp-drag','0px'); } }, {passive:true});
     // тап по слову → тафсир этого аята
     wrap.addEventListener('click', function(e){
       const w2=e.target.closest?e.target.closest('.qp-w'):null;
