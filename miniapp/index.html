@@ -661,10 +661,19 @@
     font:inherit; font-size:14px; font-weight:600; cursor:pointer; transition:transform .12s, background .15s, color .15s; -webkit-tap-highlight-color:transparent; font-variant-numeric:tabular-nums; }
   .ft-chip:active { transform:scale(.94); }
   .ft-chip.on { background:var(--accent-soft); color:var(--accent-deep); border-color:color-mix(in srgb, var(--accent) 30%, transparent); }
-  .ft-custom-row { display:flex; gap:8px; }
+  .ft-custom-row { display:flex; justify-content:center; gap:8px; width:100%; }
   .ft-custom-row[hidden] { display:none; }
-  .ft-custom-row input { width:150px; padding:9px 13px; border-radius:11px; border:1px solid var(--line); background:var(--surface-2); color:var(--ink); font:inherit; font-size:15px; }
-  .ft-custom-row button { padding:9px 18px; border-radius:11px; border:1px solid var(--accent); background:var(--accent-soft); color:var(--accent-deep); font:inherit; font-weight:700; cursor:pointer; }
+  .ft-number-field { position:relative; width:min(220px, calc(100vw - 112px)); min-width:190px; }
+  .ft-number-field input { width:100%; box-sizing:border-box; padding:9px 66px 9px 13px; border-radius:11px; border:1px solid var(--line);
+    background:var(--surface-2); color:var(--ink); font:inherit; font-size:15px; outline:none; }
+  .ft-number-field input::placeholder { color:var(--ink-faint); opacity:1; }
+  .ft-number-field input:focus { border-color:color-mix(in srgb, var(--accent) 45%, var(--line)); box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 12%, transparent); }
+  .ft-stepper { position:absolute; top:3px; right:4px; bottom:5px; display:grid; grid-template-columns:repeat(2,28px); gap:3px; }
+  .ft-step { width:28px; height:100%; padding:0; border-radius:8px; border:1px solid var(--line); background:var(--surface);
+    color:var(--ink-soft); font:inherit; font-size:16px; line-height:1; font-weight:800; cursor:pointer; -webkit-tap-highlight-color:transparent;
+    transition:transform .12s, background .15s, color .15s, border-color .15s; }
+  .ft-step:active { transform:scale(.92); background:var(--accent-soft); color:var(--accent-deep); border-color:color-mix(in srgb, var(--accent) 35%, var(--line)); }
+  .ft-custom-ok { padding:9px 18px; border-radius:11px; border:1px solid var(--accent); background:var(--accent-soft); color:var(--accent-deep); font:inherit; font-weight:700; cursor:pointer; }
   .ft-counter { position:relative; width:min(300px, 82vw); aspect-ratio:1; border:none; background:none; padding:0; cursor:pointer;
     -webkit-tap-highlight-color:transparent; touch-action:manipulation; transition:transform .1s cubic-bezier(.34,1.56,.64,1); }
   .ft-counter:active { transform:scale(.985); }
@@ -1546,8 +1555,14 @@
         <button class="ft-chip" data-t="custom" id="ftCustomBtn">своё</button>
       </div>
       <div class="ft-custom-row" id="ftCustomRow" hidden>
-        <input type="number" id="ftCustomInput" min="1" max="10000" inputmode="numeric" placeholder="число повторов">
-        <button id="ftCustomOk">OK</button>
+        <div class="ft-number-field">
+          <input type="text" id="ftCustomInput" inputmode="numeric" pattern="[0-9]*" autocomplete="off" placeholder="число повторов" aria-label="Число повторов">
+          <div class="ft-stepper">
+            <button type="button" class="ft-step" data-step="-1" aria-label="Уменьшить число повторов">−</button>
+            <button type="button" class="ft-step" data-step="1" aria-label="Увеличить число повторов">+</button>
+          </div>
+        </div>
+        <button type="button" class="ft-custom-ok" id="ftCustomOk">OK</button>
       </div>
       <button class="ft-counter" id="ftCounter" aria-label="Считать">
         <svg viewBox="0 0 220 220" class="ft-ring" aria-hidden="true">
@@ -4970,9 +4985,9 @@ https://azkar.nurtech.dev/app`);
     { t:'Ля иляха илля-Ллах', ar:'لَا إِلَٰهَ إِلَّا اللَّهُ' },
     { t:'Свободно', ar:'' },
   ];
-  let FT = { target:33, count:0, dhikr:0 };
+  let FT = { target:33, count:0, dhikr:0, customOpen:false };
   try { const s = JSON.parse(localStorage.getItem('azkar_free')||'{}'); if(s && typeof s==='object') FT = { ...FT, ...s }; } catch(e){}
-  function saveFree(){ try{ localStorage.setItem('azkar_free', JSON.stringify(FT)); }catch(e){} }
+  function saveFree(){ try{ const { customOpen, ...data } = FT; localStorage.setItem('azkar_free', JSON.stringify(data)); }catch(e){} }
   function ftRounds(){ return FT.target>0 ? Math.floor(FT.count/FT.target) : 0; }
   function renderFree(){
     const num = document.getElementById('ftNum'); if(num) num.textContent = FT.count;
@@ -4987,7 +5002,7 @@ https://azkar.nurtech.dev/app`);
       prog.style.strokeDashoffset = String(C * (1 - frac));
     }
     document.querySelectorAll('#ftTargets .ft-chip').forEach(b=>{ const tv = b.dataset.t;
-      b.classList.toggle('on', tv==='custom' ? ![33,99,100,0].includes(FT.target) : (+tv === FT.target)); });
+      b.classList.toggle('on', tv==='custom' ? FT.customOpen || ![33,99,100,0].includes(FT.target) : (!FT.customOpen && +tv === FT.target)); });
     document.querySelectorAll('#ftDhikr .ft-d').forEach(b=> b.classList.toggle('on', +b.dataset.i === FT.dhikr));
   }
   function ftInc(){
@@ -5004,24 +5019,56 @@ https://azkar.nurtech.dev/app`);
   (function(){
     const cnt = document.getElementById('ftCounter'); if(cnt) cnt.addEventListener('click', ftInc);
     const rst = document.getElementById('ftResetTop'); if(rst) rst.addEventListener('click', ftReset);
+    function ftCustomRawValue(fallback){
+      const inp = document.getElementById('ftCustomInput');
+      let v = parseInt(inp && inp.value, 10);
+      if(!isFinite(v)) v = fallback;
+      return v;
+    }
+    function ftCustomValue(){
+      let v = ftCustomRawValue(33);
+      if(v < 1) v = 33;
+      if(v > 10000) v = 10000;
+      return v;
+    }
+    function ftSetCustomValue(v){
+      const inp = document.getElementById('ftCustomInput'); if(!inp) return;
+      v = parseInt(v, 10);
+      if(!isFinite(v) || v < 1) v = 1;
+      if(v > 10000) v = 10000;
+      inp.value = v;
+    }
+    function ftApplyCustom(){
+      FT.target = ftCustomValue(); FT.count = 0; FT.customOpen = false; const row = document.getElementById('ftCustomRow'); if(row) row.hidden = true;
+      const c = document.getElementById('ftCounter'); if(c) c.classList.remove('done');
+      renderFree(); saveFree(); tgHaptic('light');
+    }
     document.querySelectorAll('#ftTargets .ft-chip').forEach(b=> b.addEventListener('click', ()=>{
       const tv = b.dataset.t;
       if(tv === 'custom'){ const row = document.getElementById('ftCustomRow');
-        if(row){ row.hidden = !row.hidden; const inp = document.getElementById('ftCustomInput');
+        if(row){ row.hidden = !row.hidden; FT.customOpen = !row.hidden; const inp = document.getElementById('ftCustomInput');
           if(!row.hidden && inp){ inp.value = FT.target || ''; setTimeout(()=>{ try{ inp.focus(); }catch(e){} }, 60); } }
+        renderFree();
         return; }
-      FT.target = +tv; FT.count = 0; const row = document.getElementById('ftCustomRow'); if(row) row.hidden = true;
+      FT.target = +tv; FT.count = 0; FT.customOpen = false; const row = document.getElementById('ftCustomRow'); if(row) row.hidden = true;
       const c = document.getElementById('ftCounter'); if(c) c.classList.remove('done');
       renderFree(); saveFree(); tgHaptic('light');
     }));
     const ok = document.getElementById('ftCustomOk');
-    if(ok) ok.addEventListener('click', ()=>{
-      const inp = document.getElementById('ftCustomInput'); let v = parseInt(inp && inp.value, 10);
-      if(!isFinite(v) || v < 1) v = 33; if(v > 10000) v = 10000;
-      FT.target = v; FT.count = 0; const row = document.getElementById('ftCustomRow'); if(row) row.hidden = true;
-      const c = document.getElementById('ftCounter'); if(c) c.classList.remove('done');
-      renderFree(); saveFree(); tgHaptic('light');
-    });
+    if(ok) ok.addEventListener('click', ftApplyCustom);
+    const customInput = document.getElementById('ftCustomInput');
+    if(customInput){
+      customInput.addEventListener('input', ()=>{
+        const clean = customInput.value.replace(/\D+/g,'').slice(0,5);
+        if(customInput.value !== clean) customInput.value = clean;
+      });
+      customInput.addEventListener('keydown', e=>{ if(e.key === 'Enter'){ e.preventDefault(); ftApplyCustom(); } });
+    }
+    document.querySelectorAll('#ftCustomRow .ft-step').forEach(b=> b.addEventListener('click', ()=>{
+      const step = parseInt(b.dataset.step, 10) || 0;
+      ftSetCustomValue(ftCustomRawValue(0) + step);
+      tgHaptic('light');
+    }));
     document.querySelectorAll('#ftDhikr .ft-d').forEach(b=> b.addEventListener('click', ()=>{ FT.dhikr = +b.dataset.i; FT.count = 0; const c=document.getElementById('ftCounter'); if(c) c.classList.remove('done'); renderFree(); saveFree(); tgHaptic('light'); }));
   })();
 
