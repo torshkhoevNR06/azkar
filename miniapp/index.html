@@ -5765,15 +5765,12 @@ https://azkar.nurtech.dev/app`);
     document.querySelectorAll('#qrAyahs .qp-ayah-group[data-ayah-key="'+s+':'+a+'"]').forEach(function(el){ el.classList.toggle('qp-ayah-on', qIsRead(s,a)); });
   }
   function qClosePageAyahMenu(){
-    const menu=document.getElementById('qpAyahMenu');
-    if(!menu) return;
-    menu.classList.remove('open');
-    setTimeout(function(){ if(!menu.classList.contains('open')) menu.remove(); },180);
+    document.querySelectorAll('#qpAyahMenu').forEach(function(menu){ menu.remove(); });
   }
   function qOpenPageAyahMenu(key, anchor){
     const parts=String(key||'').split(':'), s=parseInt(parts[0],10), a=parseInt(parts[1],10);
     if(!(s&&a&&anchor)) return;
-    qClosePageAyahMenu();
+     qClosePageAyahMenu();
     const menu=document.createElement('div'); menu.id='qpAyahMenu'; menu.className='qp-ayah-menu';
     const read=qIsRead(s,a);
     menu.innerHTML='<button type="button" data-action="read" title="'+(read?'Снять отметку':'Засчитать аят')+'" aria-label="'+(read?'Снять отметку':'Засчитать аят')+'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></button><button type="button" data-action="tafsir" title="Открыть тафсир" aria-label="Открыть тафсир"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v16H6.5A2.5 2.5 0 0 0 4 21.5z"/><path d="M4 5.5v16M8 7h8M8 11h8"/></svg></button>';
@@ -5782,13 +5779,14 @@ https://azkar.nurtech.dev/app`);
     const left=Math.max(8,Math.min(window.innerWidth-mw-8,r.left+r.width/2-mw/2));
     const top=r.top>=mh+gap ? r.top-mh-gap : Math.min(window.innerHeight-mh-8,r.bottom+gap);
     menu.style.left=left+'px'; menu.style.top=top+'px';
-    requestAnimationFrame(function(){ menu.classList.add('open'); });
-    menu.addEventListener('click',function(e){
-      const btn=e.target.closest('button'); if(!btn) return;
-      if(btn.dataset.action==='read'){ qToggleAyahRead(s,a); }
-      else { tafsirFromKey(key); }
-      qClosePageAyahMenu();
-    });
+     requestAnimationFrame(function(){ menu.classList.add('open'); });
+     menu.addEventListener('click',function(e){
+       e.preventDefault(); e.stopPropagation();
+       const btn=e.target.closest('button'); if(!btn) return;
+       qClosePageAyahMenu();
+       if(btn.dataset.action==='read'){ qToggleAyahRead(s,a); }
+       else { tafsirFromKey(key); }
+     });
   }
   if(!window._qPageMenuDismissBound){
     window._qPageMenuDismissBound=true;
