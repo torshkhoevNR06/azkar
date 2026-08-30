@@ -3039,6 +3039,9 @@
   const PLACE_KEY = 'azkar_place';
   const PLACE_TTL = 12*60*60*1000;                 // спустя 12 часов место протухает — открываем главную
   const PLACE_SKIP = { home:1, quran:1, quranReader:1 };   // у читалки Корана своя сессия (qRestoreReaderSession)
+  // Снимок места делаем сразу при загрузке: пока идёт запуск, активна главная, и первый же
+  // showScreen('home') стёр бы запись раньше, чем мы успели бы её прочитать.
+  const PLACE_BOOT = (function(){ try{ return JSON.parse(localStorage.getItem(PLACE_KEY)||'null'); }catch(e){ return null; } })();
   function savePlace(){
     const a = activeScreen(); if(!a) return;
     if(PLACE_SKIP[a.id]){ clearPlace(); return; }
@@ -3052,7 +3055,7 @@
   function clearPlace(){ try{ localStorage.removeItem(PLACE_KEY); }catch(e){} }
   function savePlaceSoon(){ clearTimeout(savePlaceSoon._t); savePlaceSoon._t=setTimeout(savePlace, 350); }
   function restorePlace(){
-    let p=null; try{ p=JSON.parse(localStorage.getItem(PLACE_KEY)||'null'); }catch(e){}
+    const p=PLACE_BOOT;
     if(!p || !p.screen || PLACE_SKIP[p.screen]) return false;
     if(!(p.ts && Date.now()-p.ts < PLACE_TTL)){ clearPlace(); return false; }
     const target=document.getElementById(p.screen); if(!target){ clearPlace(); return false; }
