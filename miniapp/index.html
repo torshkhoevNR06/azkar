@@ -3034,6 +3034,41 @@
     const a = activeScreen();
     if(a) scrollStore[a.id] = scroller().scrollTop || window.scrollY || 0;
   }
+  /* ---------- «где я был»: после сворачивания Telegram открывает Mini App заново,
+     поэтому последнее место запоминаем сами и возвращаемся в него, как в нативном приложении ---------- */
+  const PLACE_KEY = 'azkar_place';
+  const PLACE_TTL = 12*60*60*1000;                 // спустя 12 часов место протухает — открываем главную
+  const PLACE_SKIP = { home:1, quran:1, quranReader:1 };   // у читалки Корана своя сессия (qRestoreReaderSession)
+  function savePlace(){
+    const a = activeScreen(); if(!a) return;
+    if(PLACE_SKIP[a.id]){ clearPlace(); return; }
+    try{
+      localStorage.setItem(PLACE_KEY, JSON.stringify({
+        v:1, screen:a.id, key:(a.id==='reading' ? CURRENT_KEY : null),
+        y:Math.round(scroller().scrollTop || window.scrollY || 0), ts:Date.now()
+      }));
+    }catch(e){}
+  }
+  function clearPlace(){ try{ localStorage.removeItem(PLACE_KEY); }catch(e){} }
+  function savePlaceSoon(){ clearTimeout(savePlaceSoon._t); savePlaceSoon._t=setTimeout(savePlace, 350); }
+  function restorePlace(){
+    let p=null; try{ p=JSON.parse(localStorage.getItem(PLACE_KEY)||'null'); }catch(e){}
+    if(!p || !p.screen || PLACE_SKIP[p.screen]) return false;
+    if(!(p.ts && Date.now()-p.ts < PLACE_TTL)){ clearPlace(); return false; }
+    const target=document.getElementById(p.screen); if(!target){ clearPlace(); return false; }
+    try{
+      if(p.screen==='reading'){
+        if(!p.key) { clearPlace(); return false; }
+        openReading(p.key, { resume:true });
+      } else go(p.screen);
+    }catch(e){ clearPlace(); return false; }
+    const y=Math.max(0, parseInt(p.y,10)||0);
+    if(y) requestAnimationFrame(()=>requestAnimationFrame(()=>{ scroller().scrollTop=y; window.scrollTo(0,y); }));
+    return true;
+  }
+  window.addEventListener('scroll', savePlaceSoon, { passive:true });
+  document.addEventListener('visibilitychange', function(){ if(document.visibilityState==='hidden') savePlace(); });
+  window.addEventListener('pagehide', savePlace);
   function lockNavScroll(){
     if(navLockY != null) return navLockY;
     navLockY = scroller().scrollTop || window.scrollY || 0;
@@ -3066,6 +3101,7 @@
     else { document.querySelector('.phone').scrollTop = 0; window.scrollTo(0,0); }
     if(typeof qUpdatePageLock==='function') qUpdatePageLock();
     if(id === 'home' && typeof updateHomeProgress === 'function') updateHomeProgress();   // свежая статистика на главной сразу при входе
+    savePlace();   // вернулись на главную — место стирается, ушли в раздел — запоминается
     tgBack(navStack.length > 1, back);
   }
   function go(id){
@@ -3125,6 +3161,9 @@
   /* ---------- состояние (сохраняется между заходами, сбрасывается на новый день) ---------- */
   const todayStr = (date = new Date()) => date.toLocaleDateString('sv');   // YYYY-MM-DD (локальная дата)
   const SESSION_KEYS = ['morning','evening','after','sleep'];
+  // Разделы дневной нормы (кольцо прогресса и счётчик «поминаний за сегодня»).
+  // «после намаза» сюда не входит: он повторяется пять раз в день и его никто не отмечает каждый раз.
+  const RING_KEYS = ['morning','evening','sleep'];
   const SESSION_TITLES = { morning:'Утренние поминания', evening:'Вечерние поминания', after:'Поминания после намаза', sleep:'Поминания перед сном', favorites:'Избранное' };
   const blankProgress = date => ({ date, morning:{}, evening:{}, after:{}, sleep:{}, afterSlot:null });
   function hasSavedLocation(){
@@ -3146,6 +3185,35 @@
   let modalSharhMode = 'brief';
   let completeItems = [];
   function saveProgress(){ try{ localStorage.setItem('azkar_progress', JSON.stringify(PROG)); }catch(e){} }
+  /* ---------- один экземпляр приложения ----------
+     Telegram сам решает, открыть Mini App заново или вернуть уже открытое окно, и при запуске
+     разными путями (кнопка меню, сообщение бота, иконка на экране) окна накапливаются стопкой.
+     Закрыть чужое окно снаружи нельзя, но localStorage у них общий: новый запуск оставляет метку,
+     а прежние окна её видят и закрываются сами, сохранив перед этим своё место и прогресс. */
+  const INSTANCE_KEY = 'azkar_instance';
+  const INSTANCE_ID = Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+  try{ localStorage.setItem(INSTANCE_KEY, INSTANCE_ID); }catch(e){}
+  window.addEventListener('storage', function(e){
+    if(!e || e.key !== INSTANCE_KEY || !e.newValue || e.newValue === INSTANCE_ID) return;
+    try{
+      savePlace();                                                     // куда вернуть пользователя в новом окне
+      if(typeof qPersistReaderState === 'function') qPersistReaderState();
+      if(typeof qClockStop === 'function') qClockStop();               // засчитать время чтения Корана
+      if(typeof flushPush === 'function') flushPush();                 // догнать облако
+    }catch(err){}
+    if(TG && typeof TG.close === 'function') TG.close();
+  });
+  // Telegram может держать несколько открытых окон Mini App одновременно. Хранилище у них общее,
+  // но состояние в памяти — нет: без этого второе окно показывало бы устаревшие счётчики.
+  window.addEventListener('storage', function(e){
+    if(!e || e.key !== 'azkar_progress') return;
+    PROG = loadProgress();
+    try{
+      if(typeof updateHomeProgress === 'function') updateHomeProgress();
+      const scr = activeScreen();
+      if(scr && scr.id === 'reading' && CURRENT_KEY && typeof updateProgress === 'function') updateProgress(true);
+    }catch(err){}
+  });
   function itemId(key, z){ return z.id || `${key}-${z.n}`; }
   function azkarSessionKeys(){ return Object.keys(AZKAR).filter(key => AZKAR[key] && Array.isArray(AZKAR[key].items)); }
   function orderKey(key){ return `azkar_order_${key}`; }
@@ -4657,7 +4725,9 @@ https://azkar.nurtech.dev/app`);
         if(count > 0) anyStarted = true;
         if(count >= target) done++;
       });
-      azkarToday+=done; totalAzkar+=total;
+      // «после намаза» читается заново после каждого из пяти намазов, поэтому в дневную
+      // норму кольца он не входит — иначе цель недостижима при обычном пользовании.
+      if(RING_KEYS.indexOf(key) >= 0){ azkarToday+=done; totalAzkar+=total; }
       const small=document.getElementById('p'+key.charAt(0).toUpperCase()+key.slice(1));
       if(small){
         small.textContent = done+'/'+total;
@@ -6953,10 +7023,12 @@ https://azkar.nurtech.dev/app`);
     const d=document.getElementById('qiblaDial'); if(d) d.classList.remove('aligned'); }
 
   applyTheme();
-  qRestoreReaderSession();
+  const restoredQuran = qRestoreReaderSession();
   loadAzkarDb().finally(function(){
     cloudInit();   // подтянуть прогресс/порядок/настройки из TG CloudStorage (если новее) + засеять облако
     renderQuranHome();
     updateHomeProgress();
+    // Тексты зикров готовы — возвращаемся туда, где пользователь был до сворачивания.
+    if(!restoredQuran) restorePlace();
   });
 </script>
